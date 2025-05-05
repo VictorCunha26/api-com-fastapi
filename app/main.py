@@ -1,12 +1,19 @@
+from datetime import date
 from typing import Union 
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 app = FastAPI()
 
-@app.get('/')
-def read_hello():
-    return {"Hello": "World"}
+series_db = [] #Lista que simula um banco de dados
 
-@app.get('/items/{item_id}/{query}')
-def read_item(item_id: int, query: Union[str, None] = None):
-    return {"item_id": item_id, "query": query}
+class Serie(BaseModel):
+    id: int
+    titulo: str
+    descricao: str
+
+@app.post('/series/')
+def cadastrar(serie: Serie):
+    series_db.append(serie)
+    return {"mensagem": "Série cadastrada com sucesso", "serie": serie}
+

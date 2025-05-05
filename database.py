@@ -40,34 +40,23 @@ class Database:
             self.connection.close()
         print('Conexão com o banco de dados encerrada com sucesso!')
     
-    def executar(self, sql: str, params: Optional[Tuple[Any, ...]] = None) ->  Optional[List[dict]]:
+    def executar(self, sql: str, params: Optional[Tuple[Any, ...]] = None, fetch: bool = False) -> Optional[List[dict]]:
         """Executa uma instrução no banco de dados."""
         if self.connection is None and self.cursor is None:
-            print('Conexão ao banco de dados não estabelecida!')
-            return None 
-        
-        try:
-            self.cursor.execute(sql, params)
-            self.connection.commit()
-            return self.cursor 
-
-        except Error as e:
-            print(f'Erro de execução: {e}')
+            print("Conexão ao banco de dados não estabelecida.")
             return None
-
-    def consultar(self, sql: str, params: Optional[Tuple[Any, ...]] = None) -> Optional[List[dict]]:
-        """Executa uma consulta no banco de dados."""
-        if self.connection is None and self.cursor is None:
-            print('Conexão ao banco de dados não estabelecida!')
-            return None 
-        
+ 
         try:
             self.cursor.execute(sql, params)
-            return self.cursor.fetchall()
-
+            if fetch:
+                self.cursor.fetchall()
+            else:
+                self.connection.commit()
+                return self.cursor
         except Error as e:
-            print(f'Erro de execução: {e}')
-            return None 
+            print(f"Erro de conexão: {e}")
+            return None
+ 
 # Área 51           
 db = Database()
 db.conectar()
