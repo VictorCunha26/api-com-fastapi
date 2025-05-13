@@ -40,7 +40,7 @@ class Database:
             self.connection.close()
         print('Conexão com o banco de dados encerrada com sucesso!')
     
-    def executar(self, sql: str, params: Optional[Tuple[Any, ...]] = None, fetch: bool = False) -> Optional[List[dict]]:
+    def executar(self, sql: str, params: Optional[Tuple[Any, ...]] = None) -> Optional[List[dict]]:
         """Executa uma instrução no banco de dados."""
         if self.connection is None and self.cursor is None:
             print("Conexão ao banco de dados não estabelecida.")
@@ -48,8 +48,8 @@ class Database:
  
         try:
             self.cursor.execute(sql, params)
-            if fetch:
-                self.cursor.fetchall()
+            if sql.upper().startswith("SELECT"):
+                return self.cursor.fetchall()
             else:
                 self.connection.commit()
                 return self.cursor

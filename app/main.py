@@ -1,22 +1,15 @@
-from datetime import date
-from typing import Union 
+
 from fastapi import FastAPI
 from pydantic import BaseModel
-from database import Database
+from data.database import Database
+from model.models import Serie
 
 db = Database()
 app = FastAPI()
 
 series_db = [] #Lista que simula um banco de dados
 
-class Serie(BaseModel):
-    id: int
-    titulo: str
-    descricao: str
-    ano_lancamento: int
-    id_categoria: int
-
-@app.post('/series/')
+@app.post('/serie/')
 def cadastrar(serie: Serie):
     db.conectar()
     sql = "INSERT INTO serie (titulo, descricao, ano_lancamento, id_categoria) VALUES (%s, %s,%s,%s)"
@@ -24,8 +17,13 @@ def cadastrar(serie: Serie):
     db.desconectar()
     return {"mensagem": "Série cadastrada com sucesso", "serie": serie}
 
-@app.get('/series/')
+@app.get("/series/")
 def listar_series():
-    return series_db
+    db.conectar()
+    sql = "SELECT * FROM serie"
+    serie = db.executar(sql)  
+    db.desconectar()
+    return serie
+    
 
 
