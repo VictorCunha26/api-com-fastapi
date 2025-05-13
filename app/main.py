@@ -9,6 +9,7 @@ app = FastAPI()
 
 series_db = [] #Lista que simula um banco de dados
 
+# MÉTODO PARA POSTAR 
 @app.post('/serie/')
 def cadastrar(serie: Serie):
     db.conectar()
@@ -57,6 +58,8 @@ def avaliar_serie(avaliacao: Avaliacao):
     db.desconectar()
     return {"message": "Avaliação registrada com sucesso"}
 
+#MÉTODO PARA SOLICITAR IMFORMAÇÕES
+
 @app.get("/series/")
 def listar_series():
     db.conectar()
@@ -69,16 +72,15 @@ def listar_series():
 def listar_autores():
     db.conectar()
     sql = "SELECT * FROM autor"
-    autores = db.executar_comando(sql)
+    autores = db.executar(sql)
     db.desconectar()
     return autores
 
-# Rotas para categorias
 @app.get("/categorias/")
 def listar_categorias():
     db.conectar()
     sql = "SELECT * FROM categoria"
-    categorias = db.executar_comando(sql)
+    categorias = db.executar(sql)
     db.desconectar()
     return categorias
 
@@ -87,9 +89,65 @@ def listar_categorias():
 def listar_avaliacoes():
     db.conectar()
     sql = "SELECT * FROM avaliacao_serie"
-    avaliacoes = db.executar_comando(sql)
+    avaliacoes = db.executar(sql)
     db.desconectar()
     return avaliacoes
-    
+
+#MÉTODO PARA DELETAR
+
+@app.delete('/deletar/{id_serie}/')
+def deletar_series(id_serie: int):
+    db.conectar()
+    sql = "DELETE FROM serie WHERE id_serie = %s"
+    db.executar(sql,(id_serie,))
+    db.desconectar()
+    return {"mensagem": "Série deletada"}
+
+# MÉTODO PARA ATUALIZAR 
+
+@app.put("/ator/{id_ator}")
+def atualizar_ator(id_ator: int, ator: Ator):
+    db.conectar()
+    sql = "UPDATE ator SET nome = %s WHERE id_ator = %s"
+    db.executar(sql, (ator.nome, id_ator))
+    db.desconectar()
+    return {"mensagem": "Ator atualizado com sucesso", "ator_atualizado": ator}
+
+@app.put("/categoria/{id_categoria}")
+def atualizar_categoria(id_categoria: int, categoria: Categoria):
+    db.conectar()
+    sql = "UPDATE categoria SET nome = %s WHERE id_categoria = %s"
+    db.executar(sql, (categoria.nome, id_categoria))
+    db.desconectar()
+    return {"mensagem": "Categoria atualizada com sucesso", "categoria_atualizada": categoria}
+
+@app.put("/motivo/{id_motivo}")
+def atualizar_motivo(id_motivo: int, motivo: Motivo):
+    db.conectar()
+    sql = "UPDATE motivo_assistir SET id_serie = %s, motivo = %s WHERE id_motivo = %s"
+    db.executar(sql, (motivo.id_serie, motivo.motivo, id_motivo))
+    db.desconectar()
+    return {"mensagem": "Motivo atualizado com sucesso", "motivo_atualizado": motivo}
+
+@app.put("/avaliacao/{id_avaliacao}")
+def atualizar_avaliacao(id_avaliacao: int, avaliacao: Avaliacao):
+    db.conectar()
+    sql = "UPDATE avaliacao_serie SET id_serie = %s, nota = %s, comentario = %s WHERE id_avaliacao = %s"
+    db.executar(sql, (avaliacao.id_serie, avaliacao.nota, avaliacao.comentario, id_avaliacao))
+    db.desconectar()
+    return {"mensagem": "Avaliação atualizada com sucesso", "avaliacao_atualizada": avaliacao}
+
+@app.put("/series/{id_serie}")
+def atualizar_serie(id_serie: int, serie: Serie):
+    db.conectar()
+    sql = "UPDATE serie SET titulo = %s, descricao = %s, ano_lancamento = %s, id_categoria = %s WHERE id_serie = %s"
+    db.executar(sql, (serie.titulo, serie.descricao, serie.ano_lancamento, serie.id_categoria, id_serie))
+    db.desconectar()
+    return {"mensagem": "Série atualizada com sucesso", "serie_atualizada": serie}
+
+
+
+
+ 
 
 
