@@ -7,3 +7,18 @@ class Serie(BaseModel):
     descricao: str
     ano_lancamento: int
     id_categoria: int
+
+class Ator(BaseModel):
+    nome: str
+
+class Motivo(BaseModel):
+    id_serie: int
+    motivo: str
+
+class Avaliacao(BaseModel):
+    id_serie: int
+    nota: int
+    comentario: Optional[str]
+
+class Categoria(BaseModel):
+    nome: str
