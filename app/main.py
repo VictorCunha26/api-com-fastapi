@@ -98,10 +98,68 @@ def listar_avaliacoes():
 @app.delete('/deletar/{id_serie}/')
 def deletar_series(id_serie: int):
     db.conectar()
-    sql = "DELETE FROM serie WHERE id_serie = %s"
-    db.executar(sql,(id_serie,))
+    
+    # Deletar dependências primeiro
+    db.executar("DELETE FROM ator_serie WHERE id_serie = %s", (id_serie,))
+    db.executar("DELETE FROM avaliacao_serie WHERE id_serie = %s", (id_serie,))
+    db.executar("DELETE FROM motivo_assistir WHERE id_serie = %s", (id_serie,))
+    
+    # Agora deletar a série
+    db.executar("DELETE FROM serie WHERE id_serie = %s", (id_serie,))
+    
     db.desconectar()
-    return {"mensagem": "Série deletada"}
+    return {"mensagem": "Série e dados relacionados deletados com sucesso"}
+
+@app.delete("/ator/{id_ator}")
+def deletar_ator(id_ator: int):
+    db.conectar()
+    
+    # Deletar os vínculos com séries primeiro
+    sql_delete_vinculo = "DELETE FROM ator_serie WHERE id_ator = %s"
+    db.executar(sql_delete_vinculo, (id_ator,))
+    
+    # Agora deletar o ator
+    sql_delete_ator = "DELETE FROM ator WHERE id_ator = %s"
+    db.executar(sql_delete_ator, (id_ator,))
+    
+    db.desconectar()
+    return {"mensagem": "Ator e vínculos deletados com sucesso"}
+
+@app.delete("/categoria/{id_categoria}")
+def deletar_categoria(id_categoria: int):
+    db.conectar()
+    
+    # Deletar dados relacionados às séries dessa categoria
+    sql_busca_series = "SELECT id_serie FROM serie WHERE id_categoria = %s"
+    series = db.executar(sql_busca_series, (id_categoria,))
+    
+    for serie in series:
+        id_serie = serie['id_serie']
+        db.executar("DELETE FROM ator_serie WHERE id_serie = %s", (id_serie,))
+        db.executar("DELETE FROM avaliacao_serie WHERE id_serie = %s", (id_serie,))
+        db.executar("DELETE FROM motivo_assistir WHERE id_serie = %s", (id_serie,))
+        db.executar("DELETE FROM serie WHERE id_serie = %s", (id_serie,))
+    
+    # Agora deletar a categoria
+    db.executar("DELETE FROM categoria WHERE id_categoria = %s", (id_categoria,))
+    
+    db.desconectar()
+    return {"mensagem": "Categoria e séries relacionadas deletadas com sucesso"}
+
+@app.delete("/motivo/{id_motivo}")
+def deletar_motivo(id_motivo: int):
+    db.conectar()
+    db.executar("DELETE FROM motivo_assistir WHERE id_motivo = %s", (id_motivo,))
+    db.desconectar()
+    return {"mensagem": "Motivo deletado com sucesso"}
+
+@app.delete("/avaliacao/{id_avaliacao}")
+def deletar_avaliacao(id_avaliacao: int):
+    db.conectar()
+    sql = "DELETE FROM avaliacao_serie WHERE id_avaliacao = %s"
+    db.executar(sql, (id_avaliacao,))
+    db.desconectar()
+    return {"mensagem": "Avaliação deletada com sucesso"}
 
 # MÉTODO PARA ATUALIZAR 
 
