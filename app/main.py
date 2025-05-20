@@ -1,5 +1,5 @@
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from data.database import Database
 from model.models import Serie, Ator, Categoria, Motivo, Avaliacao
@@ -98,6 +98,12 @@ def listar_avaliacoes():
 @app.delete('/deletar/{id_serie}/')
 def deletar_series(id_serie: int):
     db.conectar()
+
+    serie_existente = db.executar("SELECT * FROM serie WHERE id_serie = %s", (id_serie,))
+    if not serie_existente:
+        db.desconectar()
+        raise HTTPException(status_code=404, detail="Série não encontrada")
+
     
     # Deletar dependências primeiro
     db.executar("DELETE FROM ator_serie WHERE id_serie = %s", (id_serie,))
@@ -114,6 +120,11 @@ def deletar_series(id_serie: int):
 def deletar_ator(id_ator: int):
     db.conectar()
     
+    ator_existente = db.executar("SELECT * FROM ator WHERE id_ator = %s", (id_ator,))
+    if not ator_existente:
+        db.desconectar()
+        raise HTTPException(status_code=404, detail="Ator não encontrado")
+    
     # Deletar os vínculos com séries primeiro
     sql_delete_vinculo = "DELETE FROM ator_serie WHERE id_ator = %s"
     db.executar(sql_delete_vinculo, (id_ator,))
@@ -129,6 +140,11 @@ def deletar_ator(id_ator: int):
 def deletar_categoria(id_categoria: int):
     db.conectar()
     
+    categoria_existente = db.executar("SELECT * FROM categoria WHERE id_categoria = %s", (id_categoria,))
+    if not categoria_existente:
+        db.desconectar()
+        raise HTTPException(status_code=404, detail="Categoria não encontrada")
+
     # Deletar dados relacionados às séries dessa categoria
     sql_busca_series = "SELECT id_serie FROM serie WHERE id_categoria = %s"
     series = db.executar(sql_busca_series, (id_categoria,))
@@ -149,6 +165,12 @@ def deletar_categoria(id_categoria: int):
 @app.delete("/motivo/{id_motivo}")
 def deletar_motivo(id_motivo: int):
     db.conectar()
+    
+    motivo_existente = db.executar("SELECT * FROM motivo_assistir WHERE id_motivo = %s", (id_motivo,))
+    if not motivo_existente:
+        db.desconectar()
+        raise HTTPException(status_code=404, detail="Motivo não encontrado")
+    
     db.executar("DELETE FROM motivo_assistir WHERE id_motivo = %s", (id_motivo,))
     db.desconectar()
     return {"mensagem": "Motivo deletado com sucesso"}
@@ -198,6 +220,14 @@ def atualizar_avaliacao(id_avaliacao: int, avaliacao: Avaliacao):
 @app.put("/series/{id_serie}")
 def atualizar_serie(id_serie: int, serie: Serie):
     db.conectar()
+
+    # Verificar se a série existe
+    sql_verifica = "SELECT * FROM serie WHERE id_serie = %s"
+    resultado = db.executar(sql_verifica, (id_serie,))
+    if not resultado:
+        db.desconectar()
+        raise HTTPException(status_code=404, detail="Série não encontrada")
+    
     sql = "UPDATE serie SET titulo = %s, descricao = %s, ano_lancamento = %s, id_categoria = %s WHERE id_serie = %s"
     db.executar(sql, (serie.titulo, serie.descricao, serie.ano_lancamento, serie.id_categoria, id_serie))
     db.desconectar()
