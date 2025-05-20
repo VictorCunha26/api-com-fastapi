@@ -194,6 +194,12 @@ def deletar_avaliacao(id_avaliacao: int):
 @app.put("/ator/{id_ator}")
 def atualizar_ator(id_ator: int, ator: Ator):
     db.conectar()
+
+    ator_existente = db.executar("SELECT * FROM ator WHERE id_ator = %s", (id_ator,))
+    if not ator_existente:
+        db.desconectar()
+        raise HTTPException(status_code=404, detail="Ator não encontrado")
+
     sql = "UPDATE ator SET nome = %s WHERE id_ator = %s"
     db.executar(sql, (ator.nome, id_ator))
     db.desconectar()
@@ -202,6 +208,12 @@ def atualizar_ator(id_ator: int, ator: Ator):
 @app.put("/categoria/{id_categoria}")
 def atualizar_categoria(id_categoria: int, categoria: Categoria):
     db.conectar()
+
+    categoria_existente = db.executar("SELECT * FROM categoria WHERE id_categoria = %s", (id_categoria,))
+    if not categoria_existente:
+        db.desconectar()
+        raise HTTPException(status_code=404, detail="Categoria não encontrada")
+
     sql = "UPDATE categoria SET nome = %s WHERE id_categoria = %s"
     db.executar(sql, (categoria.nome, id_categoria))
     db.desconectar()
@@ -210,6 +222,12 @@ def atualizar_categoria(id_categoria: int, categoria: Categoria):
 @app.put("/motivo/{id_motivo}")
 def atualizar_motivo(id_motivo: int, motivo: Motivo):
     db.conectar()
+
+    motivo_existente = db.executar("SELECT * FROM motivo_assistir WHERE id_motivo = %s", (id_motivo,))
+    if not motivo_existente:
+        db.desconectar()
+        raise HTTPException(status_code=404, detail="Motivo não encontrado")
+
     sql = "UPDATE motivo_assistir SET id_serie = %s, motivo = %s WHERE id_motivo = %s"
     db.executar(sql, (motivo.id_serie, motivo.motivo, id_motivo))
     db.desconectar()
@@ -218,6 +236,12 @@ def atualizar_motivo(id_motivo: int, motivo: Motivo):
 @app.put("/avaliacao/{id_avaliacao}")
 def atualizar_avaliacao(id_avaliacao: int, avaliacao: Avaliacao):
     db.conectar()
+
+    avaliacao_existente = db.executar("SELECT * FROM avaliacao_serie WHERE id_avaliacao = %s", (id_avaliacao,))
+    if not avaliacao_existente:
+        db.desconectar()
+        raise HTTPException(status_code=404, detail="Avaliação não encontrada")
+
     sql = "UPDATE avaliacao_serie SET id_serie = %s, nota = %s, comentario = %s WHERE id_avaliacao = %s"
     db.executar(sql, (avaliacao.id_serie, avaliacao.nota, avaliacao.comentario, id_avaliacao))
     db.desconectar()
