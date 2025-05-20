@@ -165,7 +165,7 @@ def deletar_categoria(id_categoria: int):
 @app.delete("/motivo/{id_motivo}")
 def deletar_motivo(id_motivo: int):
     db.conectar()
-    
+
     motivo_existente = db.executar("SELECT * FROM motivo_assistir WHERE id_motivo = %s", (id_motivo,))
     if not motivo_existente:
         db.desconectar()
@@ -178,6 +178,12 @@ def deletar_motivo(id_motivo: int):
 @app.delete("/avaliacao/{id_avaliacao}")
 def deletar_avaliacao(id_avaliacao: int):
     db.conectar()
+
+    avaliacao_existente = db.executar("SELECT * FROM avaliacao_serie WHERE id_avaliacao = %s", (id_avaliacao,))
+    if not avaliacao_existente:
+        db.desconectar()
+        raise HTTPException(status_code=404, detail="Avaliação não encontrada")
+    
     sql = "DELETE FROM avaliacao_serie WHERE id_avaliacao = %s"
     db.executar(sql, (id_avaliacao,))
     db.desconectar()
