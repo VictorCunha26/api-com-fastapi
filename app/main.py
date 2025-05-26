@@ -1,6 +1,5 @@
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 from data.database import Database
 from model.models import Serie, Ator, Categoria, Motivo, Avaliacao
 
